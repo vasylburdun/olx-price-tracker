@@ -18,6 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('olx:check-prices')->everyMinute()->withoutOverlapping();
+        $schedule->command('olx:check-prices')->everyFifteenMinutes()->withoutOverlapping();
     })
     ->create();

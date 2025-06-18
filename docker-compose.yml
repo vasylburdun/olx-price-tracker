@@ -58,6 +58,15 @@ services:
     networks:
       - olx_price_tracker
 
+  mailpit:
+    image: ghcr.io/axllent/mailpit:latest
+    restart: always
+    container_name: olx-price-tracker-mailpit
+    ports:
+      - "1025:1025" # Порт для перехоплення SMTP
+      - "8026:8025" # Порт для веб-інтерфейсу
+    networks:
+      - olx_price_tracker
 networks:
   olx_price_tracker:
   # driver: bridge # This explicitly defines the network driver as bridge (optional, as it's the default)

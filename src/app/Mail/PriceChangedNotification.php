@@ -2,12 +2,9 @@
 
 namespace App\Mail;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue; // Essential if you want to use queues for mailing
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 use App\Models\OlxAd;
 use App\Models\User;
 
@@ -17,13 +14,12 @@ use App\Models\User;
  * This Mailable represents an email notification sent to a user when the price
  * or title of an OLX ad they are subscribed to has changed.
  *
- * It implements `ShouldQueue` to allow the email to be queued for asynchronous
- * sending, improving application performance.
+ * It implements `ShouldQueue`, meaning it can be queued for asynchronous
+ * sending if a queue driver (e.g., Redis) is configured and a queue worker is running.
+ * If no queue driver is configured or no worker is running, it will be sent synchronously.
  */
-class PriceChangedNotification extends Mailable implements ShouldQueue
+class PriceChangedNotification extends Mailable
 {
-    use Queueable, SerializesModels;
-
     /**
      * The OLX ad instance whose price or title has changed.
      *

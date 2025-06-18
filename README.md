@@ -62,33 +62,28 @@ graph TD
 10. **Оновлення та Сповіщення**: Якщо `olx:check-prices` виявляє зміну ціни або назви:
     * Оновлює запис `OlxAd` у базі даних.
     * Генерує email-повідомлення `PriceChangedNotification` для кожного підписаного користувача.
-11. **Mail Driver**: Laravel буде використовувати драйвер пошти, налаштований у вашому `.env` (наприклад, `log` або `smtp`), і надсилати листи **безпосередньо** (синхронно).
+11. **Mail Driver**: Laravel буде використовувати драйвер пошти `smtp`, налаштований у `.env`, щоб надсилати листи на **Mailpit** (який виступає як локальний SMTP-сервер). Усі відправлені листи будуть доступні для перегляду та відлагодження у веб-інтерфейсі Mailpit (зазвичай за адресою `http://localhost:8026`), а не надсилатимуться на реальні поштові адреси. Листи відправляються безпосередньо (синхронно), оскільки черги не використовуються для відправки пошти.
 
 -----
 
 ## Зміст
 
-* [Особливості](#features)
-* [Системні вимоги](#requirements)
-* [Встановлення та запуск](#install)
-    * [Клонування репозиторію](https://www.google.com/search?q=%23%D0%BA%D0%BB%D0%BE%D0%BD%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F-%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D1%96%D1%8E)
-    * [Налаштування змінних оточення](https://www.google.com/search?q=%23%D0%BD%D0%B0%D0%BB%D0%B0%D1%88%D1%82%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F-%D0%B7%D0%BC%D1%96%D0%BD%D0%BD%D0%B8%D1%85-%D0%BE%D1%82%D0%BE%D1%87%D0%B5%D0%BD%D0%BD%D1%8F)
-    * [Налаштування Docker](https://www.google.com/search?q=%23%D0%BD%D0%B0%D0%BB%D0%B0%D1%88%D1%82%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F-docker)
-    * [Запуск контейнерів](https://www.google.com/search?q=%23%D0%B7%D0%B0%D0%BF%D1%83%D1%81%D0%BA-%D0%BA%D0%BE%D0%BD%D1%82%D0%B5%D0%B9%D0%BD%D0%B5%D1%80%D1%96%D0%B2)
-    * [Виконання міграцій та сидингу](https://www.google.com/search?q=%23%D0%B2%D0%B8%D0%BA%D0%BE%D0%BD%D0%B0%D0%BD%D0%BD%D1%8F-%D0%BC%D1%96%D0%B3%D1%80%D0%B0%D1%86%D1%96%D0%B9-%D1%82%D0%B0-%D1%81%D0%B8%D0%B4%D0%B8%D0%BD%D0%B3%D1%83)
-* [Використання](https://www.google.com/search?q=%23%D0%B2%D0%B8%D0%BA%D0%BE%D1%80%D0%B8%D1%81%D1%82%D0%B0%D0%BD%D0%BD%D1%8F)
-    * [Веб-інтерфейс](https://www.google.com/search?q=%23%D0%B2%D0%B5%D0%B1-%D1%96%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81)
-    * [Планувальник (Scheduler)](https://www.google.com/search?q=%23%D0%BF%D0%BB%D0%B0%D0%BD%D1%83%D0%B2%D0%B0%D0%BB%D1%8C%D0%BD%D0%B8%D0%BA-scheduler)
-    * [Черги (Queues)](https://www.google.com/search?q=%23%D1%87%D0%B5%D1%80%D0%B3%D0%B8-queues)
-    * [Логування помилок PHP](https://www.google.com/search?q=%23%D0%BB%D0%BE%D0%B3%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F-%D0%BF%D0%BE%D0%BC%D0%B8%D0%BB%D0%BE%D0%BA-php)
-* [Основні технології](https://www.google.com/search?q=%23%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D1%96-%D1%82%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D1%96%D1%97)
-* [Структура проекту (ключові файли)](https://www.google.com/search?q=%23%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D1%83%D1%80%D0%B0-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D1%83-%D0%BA%D0%BB%D1%8E%D1%87%D0%BE%D0%B2%D1%96-%D1%84%D0%B0%D0%B9%D0%BB%D0%B8)
-* [Внесок](https://www.google.com/search?q=%23%D0%B2%D0%BD%D0%B5%D1%81%D0%BE%D0%BA)
-* [Ліцензія](https://www.google.com/search?q=%23%D0%BB%D1%96%D1%86%D0%B5%D0%BD%D0%B7%D1%96%D1%8F)
+* [Особливості](#oсобливості)
+* [Системні вимоги](#cистемні-вимоги)
+* [Встановлення та запуск](#встановлення-та-запуск)
+    * [Клонування репозиторію](#клонування-репозиторію)
+    * [Налаштування змінних оточення](налаштування-змінних-оточення)
+    * [Запуск контейнерів](#запуск-контейнерів)
+* [Використання](#використання)
+    * [Веб-інтерфейс](#веб-інтерфейс)
+    * [Планувальник (Crontab та Scheduler)](#планувальник-crontab-та-scheduler)
+* [Основні технології](#основні-технології)
+* [Структура проекту (ключові файли)](#структура-проєкту-ключові-файли)
+* [Корисні команди](#корисні-команди)
 
 -----
 
-## Особливості {#features}
+## Особливості
 
 * **Аутентифікація користувачів:** Реєстрація, вхід, відновлення пароля.
 * **Управління підписками:** Додавання та видалення URL-адрес OLX оголошень для відстеження.
@@ -99,20 +94,20 @@ graph TD
 
 -----
 
-## Системні вимоги {#requirements}
+## Системні вимоги
 
 * **Docker Desktop** (для Windows/macOS) або **Docker Engine** та **Docker Compose** (для Linux).
 * **Git**
 
 -----
 
-## Встановлення та запуск {#install}
+## Встановлення та запуск
 
 ### Клонування репозиторію
 
 ```bash
-git clone <URL_ВАШОГО_РЕПОЗИТОРІЮ>
-cd olx-price-tracker
+git clone https://github.com/vasylburdun/olx-price-tracker.git
+cd olx-price-tracker/src - директорії src сам web-додаток
 ```
 
 ### Налаштування змінних оточення
@@ -127,7 +122,7 @@ cp .env.example .env
 
 * **Налаштування Додатка:**
 
-  ```env
+```env
   APP_NAME="OLX Price Tracker"
   APP_ENV=local
   APP_KEY= # Залишити порожнім, буде згенеровано Docker'ом
@@ -138,7 +133,7 @@ cp .env.example .env
 
 * **Налаштування Бази Даних:**
 
-  ```env
+```env
   DB_CONNECTION=mysql
   DB_HOST=mysql_db # Ім'я сервісу з docker-compose.yml
   DB_PORT=3306
@@ -147,186 +142,79 @@ cp .env.example .env
   DB_PASSWORD=root
   ```
 
-* **Налаштування Кешу/Черг:**
-  Оскільки черги обробляються синхронно, без окремого воркера.
-
-  ```env
-  QUEUE_CONNECTION=sync
-  ```
-
 * **Налаштування Email (Mailpit для розробки - якщо будете використовувати):**
-  У вашій поточній конфігурації `docker-compose.yml` відсутній сервіс `mailpit`. Якщо ви плануєте його додати для тестування пошти:
 
-    1.  Додайте сервіс `mailpit` до `docker-compose.yml`.
-    2.  Налаштуйте `MAIL_HOST` та `MAIL_PORT` згідно з `mailpit`.
 
-  <!-- end list -->
-
-  ```env
-  MAIL_MAILER=log # Змінено на log, оскільки Mailpit відсутній у compose
-  MAIL_HOST=null
-  MAIL_PORT=null
-  MAIL_USERNAME=null
-  MAIL_PASSWORD=null
-  MAIL_ENCRYPTION=null
-  MAIL_FROM_ADDRESS="hello@example.com"
-  MAIL_FROM_NAME="${APP_NAME}"
-  # Якщо додасте Mailpit, змініть на:
-  # MAIL_MAILER=smtp
-  # MAIL_HOST=mailpit
-  # MAIL_PORT=1025
-  ```
-
-### Налаштування Docker
-
-Переконайтеся, що ваш `docker-compose.yml` файл правильно налаштований і містить необхідні сервіси: `web` (Apache+php-fpm), `mysql_db`, `phpmyadmin`.
-
-**Ваш оновлений `docker-compose.yml`:**
-
-```yaml
-version: '3.8' # It's recommended to use a more recent Docker Compose version
-
-services:
-  web:
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-    ports:
-      - "8078:80" # Maps host port 8078 to container port 80
-    container_name: olx-price-tracker-web
-    volumes:
-      - ./src:/var/www/html:delegated # Mounts your application source code to the container
-      - ./docker/config/php.ini:/usr/local/etc/php/php.ini # Mounts a custom PHP configuration file
-      - ./docker/config/apache2.conf:/etc/apache2/apache2.conf # Mounts a custom Apache configuration file
-      - ./docker/config/envvars:/etc/apache2/envvars # Mounts Apache environment variables
-      - ~/.composer/docker-cache/:/root/.composer:cached # Caches Composer dependencies for faster builds
-    depends_on:
-      - mysql_db # Ensures the database container starts before the web container
-    networks:
-      - olx_price_tracker
-    # For better debugging if the container crashes immediately, you can uncomment these:
-    # stdin_open: true
-    # tty: true
-
-  mysql_db:
-    image: mysql:8.0
-    restart: always # Ensures the database container automatically restarts if it stops
-    container_name: olx-price-tracker-db
-    volumes:
-      - ./mysql_db:/var/lib/mysql # Persists MySQL database data to a host volume
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: olx_price_tracker
-    command:
-      [
-        'mysqld',
-        '--character-set-server=utf8mb4',
-        '--collation-server=utf8mb4_0900_ai_ci',
-        '--wait_timeout=28800',
-        '--default-authentication-plugin=mysql_native_password'
-      ]
-    networks:
-      - olx_price_tracker
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    links:
-      - mysql_db # Links phpMyAdmin to the MySQL database service for easy connection
-    environment:
-      PMA_HOST: mysql_db
-      PMA_PORT: 3306
-      UPLOAD_LIMIT: 300000M
-      MEMORY_LIMIT: 300000M
-      MAX_EXECUTION_TIME: 300000
-    ports:
-      - "8048:80" # Maps host port 8048 to container port 80 for the phpMyAdmin UI
-    container_name: olx-price-tracker-phpmyadmin
-    networks:
-      - olx_price_tracker
-
-networks:
-  olx_price_tracker:
-    # driver: bridge # This explicitly defines the network driver as bridge (optional, as it's the default)
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
 ### Запуск контейнерів
 
-Зберіть та запустіть Docker-контейнери:
+Виконайте команду:
+````bash
+docker-compose up --build -d
+````
 
-```bash
-docker compose build --no-cache # Зберіть образи, --no-cache щоб переконатися, що start_app.sh оновився
-docker compose up -d           # Запустіть контейнери у фоновому режимі
-```
+Ця команда передбачає повне розгортання проєкту. І виконаютья всі команди автоматично, такі як: 
 
-**Перевірка логів:**
-Після запуску контейнерів перевірте логи веб-сервісу, щоб переконатися, що `start_app.sh` відпрацював без помилок:
-
-```bash
-docker compose logs -f web
-```
-
-Ви повинні побачити повідомлення про `chown`, `composer install`, очищення кешу Laravel, запуск Cron та Apache.
-
-### Виконання міграцій та сидингу
-
-Виконайте міграції бази даних та (за бажанням) заповніть її початковими даними:
-
-```bash
-docker exec -it olx-price-tracker-web php artisan migrate --force
-docker exec -it olx-price-tracker-web php artisan db:seed # Якщо є сідери
-```
-
-*(Замініть `olx-price-tracker-web` на ім'я вашого веб-сервісу в `docker-compose.yml`, якщо воно відрізняється)*
-
------
+````bash
+composer install              # встановлення залежностей проєкту
+php artisan migrate           # виконання міграцій бази даних
+npm install && npm run build  # встановлення залежностей проєкту (frontend) та розгортання
+````
+Тому, після того, як контейнери запустяться, виконаються вище вказані команди.
 
 ## Використання
 
-Відкрийте ваш браузер та перейдіть за адресою: `http://localhost:8078` (згідно вашого `docker-compose.yml`)
+Відкрийте ваш браузер та перейдіть за адресою: `http://localhost:8078`.  
+phpMyAdmin - `http://localhost:8048`.  
+Інструмент для тестування електронної пошти та SMTP - `http://localhost:8026`
 
 ### Веб-інтерфейс
 
 * **Реєстрація/Вхід:** Використовуйте стандартні маршрути `/register` та `/login` для створення облікового запису та входу.
 * **Панель користувача:** Після входу ви будете перенаправлені на `/dashboard`, де зможете додавати нові оголошення для відстеження.
 
-### Планувальник (Scheduler)
+### Планувальник (Crontab та Scheduler)
 
-Планувальник Laravel (`php artisan schedule:run`) запускається Cron'ом кожну хвилину всередині Docker-контейнера. Він відповідає за запуск команди `olx:check-prices`.
+Цей проєкт використовує систему планування завдань Laravel для автоматичного виконання регулярних операцій, таких як перевірка цін OLX. Ця система базується на взаємодії системного планувальника `Crontab` та вбудованого в Laravel `Scheduler`.
+
+1.  **Crontab (Системний Рівень):**
+ На сервері налаштовано єдине завдання `Crontab`, яке **запускається щохвилини**. Його єдине призначення — викликати команду Laravel Scheduler.
+```bash
+* * * * * cd /var/www/html && /usr/local/bin/php artisan schedule:run >> /var/log/cron.log 2>&1
+```
+Таким чином, `Crontab` сам по собі **не знає** про конкретні завдання вашого додатка (наприклад, "перевіряти ціни кожні 15 хв"). 
+Він лише діє як **"тригер"**, який щохвилини запускає планувальник Laravel.
+
+2.  **Laravel Scheduler:**
+Коли `php artisan schedule:run` виконується, планувальник Laravel перевіряє розклад завдань, визначений у файлі **`bootstrap/app.php`** (у методі `withSchedule`).  
+
+Він перевіряє **свій власний розклад**, який містить всі деталі запланованих завдань, визначених у вашому PHP-коді.
+
+Наприклад, у `bootstrap/app.php` 
+```php
+->withSchedule(function (Schedule $schedule) {
+    $schedule->command('olx:check-prices')->everyFifteenMinutes()->withoutOverlapping();
+})
+```
+Laravel Scheduler, при кожному запуску (`щохвилини` від Crontab), перевіряє: "Чи настала хвилина для виконання `olx:check-prices`? (у цьому випадку - кожні 15 хвилина). Так? Тоді виконуємо. Ні? Тоді нічого не робимо до наступної хвилини".  
+
+Ми використовуємо `->withoutOverlapping()` для цього завдання, щоб гарантувати, що новий екземпляр команди `olx:check-prices` не буде запущений, якщо попередній ще виконується.  
 
 Ви можете перевірити список запланованих команд, виконавши:
 
 ```bash
 docker exec -it olx-price-tracker-web php artisan schedule:list
 ```
-
-### Черги (Queues)
-
-У вашій поточній конфігурації `docker-compose.yml` відсутні окремі сервіси для черг. Це означає, що Laravel буде використовувати **синхронний драйвер черг (`QUEUE_CONNECTION=sync`)**.
-При використанні `sync` драйвера, відправка email-повідомлень буде відбуватися **безпосередньо під час виконання команди `olx:check-prices`**, а не асинхронно. Це може уповільнити виконання команди.
-
-Якщо ви плануєте використовувати черги для асинхронної обробки у майбутньому (наприклад, для production-середовища з великою кількістю даних), вам потрібно буде:
-
-1.  **Додати сервіс брокера черг** (наприклад, Redis, RabbitMQ або базу даних для черг) до вашого `docker-compose.yml`.
-2.  **Налаштувати `QUEUE_CONNECTION`** у вашому `.env` файлі відповідно до обраного брокера.
-3.  **Запустити воркер черг** (наприклад, в окремому терміналі або за допомогою Supervisor у production):
-    ```bash
-    docker exec -it olx-price-tracker-web php artisan queue:work --verbose
-    ```
-
-### Логування помилок PHP
-
-Усі PHP-помилки записуються у файл:
-`storage/logs/php_errors/php_error.log`
-
-Ви можете переглянути його, виконавши команду всередині контейнера:
-
-```bash
-docker exec -it olx-price-tracker-web cat storage/logs/php_errors/php_error.log
-```
-
-Або безпосередньо на хост-машині у вашому проєкті в директорії `storage/logs/php_errors/`.
-
------
 
 ## Основні технології
 
@@ -337,11 +225,12 @@ docker exec -it olx-price-tracker-web cat storage/logs/php_errors/php_error.log
 * **Symfony DomCrawler** (Для парсингу HTML)
 * **Docker**
 * **Docker Compose**
-* **phpMyAdmin** (Для керування БД)
+* **phpMyAdmin** (Для керування БД - `http://localhost:8048`)
+* **Mailpit** (інструмент для тестування електронної пошти та SMTP - `http://localhost:8026`)
 
 -----
 
-## Структура проекту (ключові файли)
+## Структура проєкту (ключові файли)
 
 * `app/Console/Commands/CheckOlxPrices.php`: Artisan-команда для перевірки цін та відправки сповіщень.
 * `app/Mail/PriceChangedNotification.php`: Mailable-клас для створення email-повідомлень про зміну ціни.
@@ -349,26 +238,24 @@ docker exec -it olx-price-tracker-web cat storage/logs/php_errors/php_error.log
 * `app/Models/Subscription.php`: Eloquent-модель, що пов'язує користувачів з OLX оголошеннями.
 * `app/Models/User.php`: Eloquent-модель, що представляє користувача системи.
 * `app/Services/OlxScraperService.php`: Сервіс, відповідальний за безпосередній парсинг OLX сторінок.
-* `bootstrap/app.php`: Основний файл ініціалізації Laravel 10/11+, де конфігурується планувальник.
+* `bootstrap/app.php`: Основний файл ініціалізації Laravel, де конфігурується планувальник.
 * `config/*`: Директорія з файлами конфігурації Laravel (додатка, бази даних, пошти, черг тощо).
 * `database/migrations/*`: Файли міграцій для створення структури бази даних.
 * `docker/Dockerfile`: Визначення Docker-образу для веб-сервісу.
 * `docker/config/start_app.sh`: Скрипт, що виконується при старті веб-контейнера для налаштування середовища (Composer, Cron, права доступу).
 * `docker-compose.yml`: Файл конфігурації для визначення та запуску багатоконтейнерних Docker-додатків.
 * `routes/web.php`: Файл, що містить веб-маршрути додатка (для реєстрації, входу, панелі користувача, управління підписками).
-* `src/`: Ваша коренева директорія проекту Laravel, яка монтується в контейнер.
+* `src/`: Коренева директорія проєкту Laravel, яка монтується в контейнер.
 
 -----
 
-## Внесок
+## Корисні команди
 
-Вітаються будь-які внески та пропозиції щодо покращення\! Будь ласка, створіть "Issue" для повідомлення про помилки або пропозицій, або подайте "Pull Request" з вашими змінами.
-
------
-
-## Ліцензія
-
-Проект ліцензовано за ліцензією MIT.
-
-```
+```bash
+docker exec -it olx-price-tracker-web php artisan view:clear     # Очищає кеш скомпільованих Blade-шаблонів (views).
+docker exec -it olx-price-tracker-web php artisan config:clear   # Очищає кеш скомпільованих файлів конфігурації.
+docker exec -it olx-price-tracker-web php artisan route:clear    # Очищає кеш скомпільованих визначень маршрутів.
+docker exec -it olx-price-tracker-web php artisan cache:clear    # Очищає кеш, який використовується за замовчуванням драйвером кешу
+docker exec -it olx-price-tracker-web php artisan optimize       # Оптимізація програми шляхом кешування конфігурації, маршрутів та інших даних, що може покращити продуктивність
+docker exec -it olx-price-tracker-web php artisan optimize:clear # Очищає різні кеші, щоб підвищити продуктивність програми
 ```

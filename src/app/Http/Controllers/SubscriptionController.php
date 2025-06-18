@@ -2,81 +2,119 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\OlxAd;
+use App\Models\Subscription;
+use App\Services\OlxScraperService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+// use Illuminate\Validation\Rule; // This use statement is no longer needed
 
-/**
- * Class ProfileController
- *
- * This controller manages a user's profile, including displaying their profile
- * information, updating it, and handling account deletion.
- */
-class ProfileController extends Controller
+class SubscriptionController extends Controller
 {
     /**
-     * Display the user's profile editing form.
+     * The OlxScraperService instance.
      *
-     * @param Request $request The incoming HTTP request, containing the authenticated user.
-     * @return View The profile editing view, pre-populated with user data.
+     * @var OlxScraperService
      */
-    public function edit(Request $request): View
+    protected OlxScraperService $olxScraperService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param OlxScraperService $olxScraperService The OLX scraper service.
+     * @return void
+     */
+    public function __construct(OlxScraperService $olxScraperService)
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $this->olxScraperService = $olxScraperService;
     }
 
     /**
-     * Update the user's profile information.
+     * Display a listing of the user's subscriptions.
      *
-     * Validates the incoming request and updates the authenticated user's profile details.
-     * If the email address is changed, it resets the `email_verified_at` timestamp.
-     *
-     * @param ProfileUpdateRequest $request The validated request containing profile data.
-     * @return RedirectResponse A redirect back to the profile editing page with a status message.
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
     {
-        $request->user()->fill($request->validated());
+        $subscriptions = Auth::user()->subscriptions()->with('olxAd')->get();
+        return view('subscriptions.index', compact('subscriptions'));
+    }
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+    /**
+     * Store a newly created subscription in storage.
+     *
+     * This method handles the creation of a new subscription. It validates the OLX URL,
+     * scrapes initial data if the ad is new, and then checks for existing subscriptions
+     * before creating a new one.
+     *
+     * @param  \Illuminate\Http\Request  $request The incoming HTTP request.
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        // 1. Validate only the URL format initially
+        $request->validate([
+            'url' => [
+                'required',
+                'url',
+                'regex:/^https:\/\/www\.olx\.ua\/d\/.+?(\.html|\/)$/i', // Basic OLX URL validation
+            ],
+        ], [
+            'url.regex' => 'Please provide a valid OLX ad link (e.g., https://www.olx.ua/d/uk/obyavlenie/...).',
+        ]);
+
+        $url = $request->input('url');
+
+        // 2. Find or create the OlxAd based on the URL
+        $olxAd = OlxAd::firstOrNew(['url' => $url]);
+
+        // If it's a new ad, scrape initial price and title
+        if (!$olxAd->exists) {
+            $initialPriceData = $this->olxScraperService->scrapePrice($url);
+            if ($initialPriceData) {
+                $olxAd->current_price = $initialPriceData['price'];
+                $olxAd->currency = $initialPriceData['currency'];
+                $olxAd->last_checked_at = now();
+                $olxAd->title = $initialPriceData['title'] ?? 'Unknown Title'; // Ensure a title is set
+            } else {
+                return back()->with('error', 'Failed to retrieve initial price or title for the ad. Please check the link.');
+            }
+        }
+        $olxAd->save(); // Save (or update) the OlxAd to ensure it has an ID
+
+        // 3. Explicitly check if a subscription already exists for this user and this specific ad.
+        $existingSubscription = Subscription::where('user_id', Auth::id())
+            ->where('olx_ad_id', $olxAd->id)
+            ->first();
+
+        if ($existingSubscription) {
+            // If the subscription already exists, return a validation error for the URL field
+            return back()->withErrors(['url' => 'You are already subscribed to this ad.'])->withInput();
         }
 
-        $request->user()->save();
+        // 4. Create the subscription if validation passes and no existing subscription is found
+        Auth::user()->subscriptions()->create(['olx_ad_id' => $olxAd->id]);
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return back()->with('success', 'Subscription successfully added!');
     }
 
     /**
-     * Delete the user's account.
+     * Remove the specified subscription from storage.
      *
-     * Validates the user's password to confirm deletion, logs the user out,
-     * deletes the user record from the database, invalidates the session,
-     * regenerates the CSRF token, and redirects to the homepage.
+     * Ensures that the authenticated user owns the subscription before deleting it.
      *
-     * @param Request $request The incoming HTTP request, containing the authenticated user and password.
-     * @return RedirectResponse A redirect response to the homepage after account deletion.
+     * @param  \App\Models\Subscription  $subscription The subscription instance to delete.
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Subscription $subscription): \Illuminate\Http\RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        // Ensure the user owns the subscription
+        if ($subscription->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.'); // Added a message for 403
+        }
 
-        $user = $request->user();
+        $subscription->delete();
 
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return back()->with('success', 'Subscription removed successfully.');
     }
 }

@@ -67,7 +67,6 @@ class CheckOlxPrices extends Command
     public function handle(): int
     {
         Log::info('OLX price check started.');
-
         // Retrieve all unique ads that have active subscriptions
         $olxAds = OlxAd::has('subscriptions')->get();
 
@@ -81,46 +80,55 @@ class CheckOlxPrices extends Command
             $oldTitle = $olxAd->title; // Store old title for logging and comparison
 
             // Scrape the new price and title for the ad
-            $scrapedData = $this->olxScraperService->scrapePrice($olxAd->url);
-
-            if ($scrapedData && $scrapedData['price'] !== null) {
-                $newPrice = $scrapedData['price'];
+//            $scrapedData = $this->olxScraperService->scrapePrice($olxAd->url);
+//
+//            if ($scrapedData && $scrapedData['price'] !== null) {
+                $newPrice = 123;
                 // Use old title if new one isn't scraped, to prevent accidental overwrites
-                $newTitle = $scrapedData['title'] ?? $oldTitle;
+                $newTitle = $oldTitle;
 
                 // Check if price or title has changed
-                if ($newPrice !== $oldPrice || $newTitle !== $oldTitle) {
-                    $olxAd->current_price = $newPrice;
-                    $olxAd->currency = $scrapedData['currency'];
-                    $olxAd->title = $newTitle;
-                    $olxAd->last_checked_at = now();
-                    $olxAd->save();
+                // (Commented out for continuous email sending as per user request)
+                // if ($newPrice !== $oldPrice || $newTitle !== $oldTitle) {
+                $olxAd->current_price = $newPrice;
+                $olxAd->currency = 'UAH';
+                $olxAd->title = $newTitle;
+                $olxAd->last_checked_at = now();
+                $olxAd->save();
 
-                    Log::info("Ad data changed for: {$olxAd->url}. Old price: {$oldPrice}, New price: {$newPrice}. Old title: '{$oldTitle}', New title: '{$newTitle}'");
+//                Log::info("Ad data changed for: {$olxAd->url}. Old price: {$oldPrice}, New price: {$newPrice}. Old title: '{$oldTitle}', New title: '{$newTitle}'");
 
-                    // Notify all users subscribed to this ad
-                    foreach ($olxAd->subscriptions as $subscription) {
-                        $user = $subscription->user;
+                // Notify all users subscribed to this ad
+                foreach ($olxAd->subscriptions as $subscription) {
+                    $user = $subscription->user;
 
-                        if ($user) {
-                            try {
-                                // If you're using queues for emails (recommended for production):
-                                Mail::to($user->email)->queue(new PriceChangedNotification($olxAd, $oldPrice, $newPrice, $user));
-                                Log::info("Queued price change notification to {$user->email} for ad: {$olxAd->url}");
-                            } catch (\Exception $e) {
-                                Log::error("Failed to queue/send email to {$user->email} for ad {$olxAd->url}: " . $e->getMessage());
-                            }
+                    if ($user) {
+                        try {
+                            // Sending emails synchronously as queues are currently not in use.
+                            // If queues are enabled, Laravel will automatically queue this Mailable
+                            // because PriceChangedNotification implements ShouldQueue.
+                            Mail::to('kk@gmail.com')->send(
+                                (new \Illuminate\Mail\Mailable()) // Використовуємо базовий клас Mailable
+                                ->subject('Test Command Email')
+                                    ->html('<h1>Hello from Command '.$user->name.'!</h1><p>This is a test email sent from the Artisan command.</p>')
+                                    ->from('sender@example.com', 'Laravel Test')
+                            );
+                            Mail::to($user->email)->send(new PriceChangedNotification($olxAd, $oldPrice, $newPrice, $user));
+                            Log::info("Sent price change notification to {$user->email} for ad: {$olxAd->url}");
+                        } catch (\Exception $e) {
+                            Log::error("Failed to send email to {$user->email} for ad {$olxAd->url}: " . $e->getMessage());
                         }
                     }
-                } else {
-                    // If price and title are unchanged, just update the last checked timestamp
-                    $olxAd->last_checked_at = now();
-                    $olxAd->save();
-                    Log::info("Ad data unchanged for: {$olxAd->url}. Current price: {$newPrice}");
                 }
-            } else {
-                Log::warning("Failed to scrape price or data for ad: {$olxAd->url}. Skipping update.");
-            }
+                // } else {
+                //     // If price and title are unchanged, just update the last checked timestamp
+                //     $olxAd->last_checked_at = now();
+                //     $olxAd->save();
+                //     Log::info("Ad data unchanged for: {$olxAd->url}. Current price: {$newPrice}");
+                // }
+//            } else {
+//                Log::warning("Failed to scrape price or data for ad: {$olxAd->url}. Skipping update.");
+//            }
         }
 
         Log::info('OLX price check finished.');
