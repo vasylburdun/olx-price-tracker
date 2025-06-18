@@ -20,7 +20,7 @@ graph TD
     E -- Зберегти Subscription --> G[БД: Subscriptions];
     F --> |Запит| OlxScraperService[Сервіс: OlxScraperService];
 
-    subgraph Фоновий процес (Docker Container)
+    subgraph Background Process (Docker Container)
         H[Docker Compose] --> I[Веб-контейнер: Apache + PHP-FPM];
         H --> J[Контейнер БД: MySQL];
 
@@ -68,11 +68,11 @@ graph TD
 
 ## Зміст
 
-* [Особливості](#oсобливості)
-* [Системні вимоги](#cистемні-вимоги)
+* [Особливості](#особливості)
+* [Системні вимоги](#системні-вимоги)
 * [Встановлення та запуск](#встановлення-та-запуск)
     * [Клонування репозиторію](#клонування-репозиторію)
-    * [Налаштування змінних оточення](налаштування-змінних-оточення)
+    * [Налаштування змінних оточення](#налаштування-змінних-оточення)
     * [Запуск контейнерів](#запуск-контейнерів)
 * [Використання](#використання)
     * [Веб-інтерфейс](#веб-інтерфейс)
@@ -166,9 +166,14 @@ docker-compose up --build -d
 Ця команда передбачає повне розгортання проєкту. І виконаютья всі команди автоматично, такі як: 
 
 ````bash
-composer install              # встановлення залежностей проєкту
-php artisan migrate           # виконання міграцій бази даних
-npm install && npm run build  # встановлення залежностей проєкту (frontend) та розгортання
+composer install              
+# встановлення залежностей проєкту
+
+php artisan migrate           
+# виконання міграцій бази даних
+
+npm install && npm run build  
+# встановлення залежностей проєкту (frontend) та розгортання
 ````
 Тому, після того, як контейнери запустяться, виконаються вище вказані команди.
 
@@ -252,10 +257,21 @@ docker exec -it olx-price-tracker-web php artisan schedule:list
 ## Корисні команди
 
 ```bash
-docker exec -it olx-price-tracker-web php artisan view:clear     # Очищає кеш скомпільованих Blade-шаблонів (views).
-docker exec -it olx-price-tracker-web php artisan config:clear   # Очищає кеш скомпільованих файлів конфігурації.
-docker exec -it olx-price-tracker-web php artisan route:clear    # Очищає кеш скомпільованих визначень маршрутів.
-docker exec -it olx-price-tracker-web php artisan cache:clear    # Очищає кеш, який використовується за замовчуванням драйвером кешу
-docker exec -it olx-price-tracker-web php artisan optimize       # Оптимізація програми шляхом кешування конфігурації, маршрутів та інших даних, що може покращити продуктивність
-docker exec -it olx-price-tracker-web php artisan optimize:clear # Очищає різні кеші, щоб підвищити продуктивність програми
+docker exec -it olx-price-tracker-web php artisan view:clear     
+# Очищає кеш скомпільованих Blade-шаблонів (views).
+
+docker exec -it olx-price-tracker-web php artisan config:clear   
+# Очищає кеш скомпільованих файлів конфігурації.
+
+docker exec -it olx-price-tracker-web php artisan route:clear    
+# Очищає кеш скомпільованих визначень маршрутів.
+
+docker exec -it olx-price-tracker-web php artisan cache:clear    
+# Очищає кеш, який використовується за замовчуванням драйвером кешу
+
+docker exec -it olx-price-tracker-web php artisan optimize       
+# Оптимізація програми шляхом кешування конфігурації, маршрутів та інших даних, що може покращити продуктивність
+
+docker exec -it olx-price-tracker-web php artisan optimize:clear 
+# Очищає різні кеші, щоб підвищити продуктивність програми
 ```
