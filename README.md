@@ -20,17 +20,17 @@ graph TD
     E -- Зберегти Subscription --> G[БД: Subscriptions];
     F --> |Запит| OlxScraperService[Сервіс: OlxScraperService];
 
-    subgraph Background Process (Docker Container)
+    subgraph "Background Process (Docker Container)"
         H[Docker Compose] --> I[Веб-контейнер: Apache + PHP-FPM];
         H --> J[Контейнер БД: MySQL];
 
-        I -- Крон-завдання (кожну хв) --> L[Artisan Scheduler (php artisan schedule:run)];
-        L -- Виконує команду --> M[Artisan Command: olx:check-prices];
+        I -- Крон-завдання (кожну хв) --> L["Artisan Scheduler (php artisan schedule:run)"];
+        L -- Виконує команду --> M["Artisan Command: olx:check-prices"];
         M --> F;
         M --> OlxScraperService;
         OlxScraperService -- Парсинг ціни --> N[OLX.ua];
         M -- Якщо ціна змінилась --> O[Відправка Email-повідомлення];
-        O --> P[Mail Driver (напр., Mailtrap, SMTP - **Mailpit потрібно додати в docker-compose**)];
+        O --> P["Mail Driver (напр., Mailtrap, SMTP - **Mailpit потрібно додати в docker-compose**)"];
     end
 
     F -- (Відношення) --> G;
