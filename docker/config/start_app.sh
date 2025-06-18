@@ -21,10 +21,6 @@ echo "Clearing Laravel scheduler cache..."
 php artisan schedule:clear-cache # Clear any existing scheduler cache
 
 # Add the cron job for the Laravel scheduler.
-# This ensures the scheduler entry is present for the cron daemon managed by Supervisor.
-echo "* * * * * cd /var/www/html && /usr/local/bin/php artisan schedule:run >> /var/log/cron.log 2>&1" | crontab -
-
-# Add the cron job for the Laravel scheduler.
 # This job runs the Laravel scheduler every minute.
 # Output is redirected to /var/log/cron.log for debugging.
 # Using full path to PHP ensures Cron finds it reliably.
